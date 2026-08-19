@@ -320,6 +320,9 @@ const SEGMENT = CONFIG.segments.includes(rawSeg) ? rawSeg : rawSeg;
 const rawPersona = params.get("persona") || "";
 const PERSONA = CONFIG.personas.includes(rawPersona) ? rawPersona : rawPersona;
 
+/* True once a real Apps Script endpoint is set; false only during local testing */
+const CONFIGURED = CONFIG.endpoint && !CONFIG.endpoint.startsWith("PASTE_");
+
 /* ---------- Chip inputs ---------- */
 const chipStore = {};
 $$(".chipbox").forEach(box => {
@@ -404,7 +407,7 @@ function go(i){
   backBtn.style.visibility = cur===0 ? "hidden" : "visible";
   const last = cur === panels.length-1;
   nextBtn.textContent = last ? "Submit" : "Next";
-  caption.textContent = last ? "Your answers download as a file you can send back to RAKEZ." : "";
+  caption.textContent = last ? (CONFIGURED ? "Your response goes straight to RAKEZ — nothing further to do." : "Your answers download as a file you can send back to RAKEZ.") : "";
   err.textContent = "";
   $("#formcard").scrollIntoView({behavior:"smooth", block:"start"});
 }
@@ -453,8 +456,7 @@ function submitResponse(){
     return;
   }
 
-  const configured = CONFIG.endpoint && !CONFIG.endpoint.startsWith("PASTE_");
-  if(!configured){
+  if(!CONFIGURED){
     // No Sheet endpoint set yet — keep the old download so the form still works
     downloadJSON(data);
     showThanks();
