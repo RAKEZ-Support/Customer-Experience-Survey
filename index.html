@@ -292,11 +292,18 @@
 
 <script>
 /* ============================================================
-   CONFIG — segments are used only to tag the response.
-   Send one link per segment, e.g. survey.html?segment=Industrial
+   CONFIG — segment and persona are used only to tag the response;
+   the survey itself is identical for everyone regardless of link.
+   Send one link per segment+persona, e.g.
+   survey.html?segment=Non-Industrial&persona=Visa%20Seeker
    ============================================================ */
 const CONFIG = {
   segments: ["Industrial", "Non-Industrial", "Agents", "Freelancer / Individual"],
+  personas: [
+    "Visa Seeker", "License Seeker", "Micro/Small", "Medium & Corporate",
+    "Small Industrial", "Medium and Large Industrial",
+    "Strategic Agents", "Long Tail Agents", "Growth Agents"
+  ],
   // 1) Create a Google Sheet + Apps Script Web App (see setup notes), then
   // 2) paste its Web App URL below. Until you do, the form falls back to
   //    downloading a JSON file so you can still test it locally.
@@ -306,10 +313,12 @@ const CONFIG = {
 const $  = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => [...r.querySelectorAll(s)];
 
-/* Segment comes silently from the link */
+/* Segment and persona come silently from the link — never shown to the respondent */
 const params = new URLSearchParams(location.search);
 const rawSeg = params.get("segment") || "";
 const SEGMENT = CONFIG.segments.includes(rawSeg) ? rawSeg : rawSeg;
+const rawPersona = params.get("persona") || "";
+const PERSONA = CONFIG.personas.includes(rawPersona) ? rawPersona : rawPersona;
 
 /* ---------- Chip inputs ---------- */
 const chipStore = {};
@@ -408,6 +417,7 @@ function collect(){
   return {
     submittedAt: new Date().toISOString(),
     segment: SEGMENT,
+    persona: PERSONA,
     company: $("#company").value.trim(),
     perception: chipStore.perception,
     perceptionWhy: $("#perceptionWhy").value.trim(),
